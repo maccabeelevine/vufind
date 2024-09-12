@@ -31,6 +31,8 @@ namespace VuFindTest\Config;
 
 use VuFind\Config\Upgrade;
 
+use function in_array;
+
 /**
  * Config Upgrade Test Class
  *
@@ -102,15 +104,15 @@ class UpgradeTest extends \PHPUnit\Framework\TestCase
             . 'For usage tracking, please configure Google Analytics or Matomo.',
         ];
         if ((float)$version < 1.3) {
-            $expectedWarnings[] = "WARNING: This version of VuFind does not support "
-                . "the default theme. Your config.ini [Site] theme setting "
-                . "has been reset to the default: bootprint3. You may need to "
-                . "reimplement your custom theme.";
+            $expectedWarnings[] = 'WARNING: This version of VuFind does not support '
+                . 'the default theme. Your config.ini [Site] theme setting '
+                . 'has been reset to the default: bootprint3. You may need to '
+                . 'reimplement your custom theme.';
         } elseif ((float)$version < 2.4) {
-            $expectedWarnings[] = "WARNING: This version of VuFind does not support "
-                . "the blueprint theme. Your config.ini [Site] theme setting "
-                . "has been reset to the default: bootprint3. You may need to "
-                . "reimplement your custom theme.";
+            $expectedWarnings[] = 'WARNING: This version of VuFind does not support '
+                . 'the blueprint theme. Your config.ini [Site] theme setting '
+                . 'has been reset to the default: bootprint3. You may need to '
+                . 'reimplement your custom theme.';
         }
         $this->assertEquals($expectedWarnings, $warnings);
 
@@ -261,6 +263,22 @@ class UpgradeTest extends \PHPUnit\Framework\TestCase
             'Custom Generator',
             $results['config.ini']['Site']['generator']
         );
+    }
+
+    /**
+     * Test spellchecker changes.
+     *
+     * @return void
+     */
+    public function testSpelling()
+    {
+        $upgrader = $this->getUpgrader('spelling');
+        $upgrader->run();
+        $results = $upgrader->getNewConfigs();
+
+        // Make sure spellcheck 'simple' is replaced by 'dictionaries'
+        $this->assertFalse(isset($results['config.ini']['Spelling']['simple']));
+        $this->assertTrue(isset($results['config.ini']['Spelling']['dictionaries']));
     }
 
     /**
@@ -514,6 +532,44 @@ class UpgradeTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * Test comment extraction.
+     *
+     * @return void
+     */
+    public function testCommentExtraction()
+    {
+        $upgrader = $this->getUpgrader('comments');
+        $config = $this->getFixtureDir() . 'configs/comments/config.ini';
+        $this->assertEquals(
+            [
+                'sections' => [
+                    'Section' => [
+                        'before' => "; This is a top comment\n",
+                        'inline' => '',
+                        'settings' => [
+                            'foo' => [
+                                'before' => "; This is a setting comment\n",
+                                'inline' => '',
+                            ],
+                            'bar' => [
+                                'before' => "\n",
+                                'inline' => '; this is an inline comment',
+                            ],
+                        ],
+                    ],
+                    'NextSection' => [
+                        'before' => "\n",
+                        'inline' => '; this is an inline section comment',
+                        'settings' => [],
+                    ],
+                ],
+                'after' => "\n; This is a trailing comment",
+            ],
+            $this->callMethod($upgrader, 'extractComments', [$config])
+        );
+    }
+
+    /**
      * Test Primo upgrade.
      *
      * @return void
@@ -583,5 +639,37 @@ class UpgradeTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('private', $captcha['recaptcha_secretKey']);
         $this->assertEquals('theme', $captcha['recaptcha_theme']);
         $this->assertEquals(['recaptcha'], $captcha['types']);
+    }
+
+    /**
+     * Data provider for testMailRequireLoginMigration().
+     *
+     * @return array[]
+     */
+    public static function mailRequireLoginProvider(): array
+    {
+        return [
+            'false' => ['email-require-login-false', 'enabled'],
+            'true' => ['email-require-login-true', 'require_login'],
+        ];
+    }
+
+    /**
+     * Test migration of [Mail] require_login setting.
+     *
+     * @param string $fixture  Fixture to load
+     * @param string $expected Expected migrated setting
+     *
+     * @return void
+     *
+     * @dataProvider mailRequireLoginProvider
+     */
+    public function testMailRequireLoginMigration(string $fixture, string $expected): void
+    {
+        $upgrader = $this->getUpgrader($fixture);
+        $upgrader->run();
+        $results = $upgrader->getNewConfigs();
+        $this->assertFalse(isset($results['config.ini']['Mail']['require_login']));
+        $this->assertEquals($expected, $results['config.ini']['Mail']['email_action']);
     }
 }

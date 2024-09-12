@@ -43,6 +43,12 @@ use VuFindSearch\Backend\Solr\Document\DocumentInterface;
 use VuFindSearch\Exception\InvalidArgumentException;
 use VuFindSearch\ParamBag;
 
+use function call_user_func_array;
+use function count;
+use function is_callable;
+use function sprintf;
+use function strlen;
+
 /**
  * SOLR connector.
  *
@@ -361,8 +367,9 @@ class Connector implements \Laminas\Log\LoggerAwareInterface
      */
     protected function isRethrowableSolrException($ex)
     {
+        // Solr can return 404 when the instance hasn't completed startup, so allow that to be retried:
         return $ex instanceof TimeoutException
-            || $ex instanceof RequestErrorException;
+            || (($ex instanceof RequestErrorException) && $ex->getResponse()->getStatusCode() !== 404);
     }
 
     /**
