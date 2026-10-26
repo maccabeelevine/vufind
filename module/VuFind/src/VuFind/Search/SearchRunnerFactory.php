@@ -71,7 +71,8 @@ class SearchRunnerFactory implements FactoryInterface
         }
         return new $requestedName(
             $container->get(\VuFind\Search\Results\PluginManager::class),
-            new EventManager($container->get('SharedEventManager'))
+            new EventManager($container->get('SharedEventManager')),
+            $container->get(\VuFind\Search\QueryEnrichment\Manager::class)
         );
     }
 }

@@ -34,6 +34,7 @@ use Laminas\EventManager\EventManagerInterface;
 use Laminas\Stdlib\Parameters;
 use VuFind\Search\Results\PluginManager as ResultsManager;
 use VuFind\Search\Solr\ErrorListener;
+use VuFind\Search\QueryEnrichment\Manager as QueryEnrichmentManager;
 
 use function is_array;
 use function is_callable;
@@ -86,7 +87,8 @@ class SearchRunner
      */
     public function __construct(
         ResultsManager $resultsManager,
-        ?EventManager $events = null
+        ?EventManager $events = null,
+        protected ?QueryEnrichmentManager $queryEnrichmentManager = null
     ) {
         $this->resultsManager = $resultsManager;
         if (null !== $events) {
@@ -133,6 +135,9 @@ class SearchRunner
         $params = $results->getParams();
         $params->setLastView($lastView);
         $params->initFromRequest($request);
+
+        $queryEnrichmentRequest = $request->get('enrichment');
+        $this->queryEnrichmentManager->enrich($params, $queryEnrichmentRequest);
 
         if (is_callable($setupCallback)) {
             $setupCallback($this, $params, $runningSearchId, $results);

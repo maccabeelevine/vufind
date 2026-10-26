@@ -195,6 +195,11 @@
       <?php if ($geoUrl = $this->geocoords()->getSearchUrl($options)) : ?>
           <a href="<?=$geoUrl ?>" class="btn btn-link"><?=$this->transEsc('Geographic Search')?></a>
       <?php endif; ?>
+      <div>
+        <input type="checkbox" name="enrichmentEnabled" checked>
+        <input type="hidden" name="enrichment" value="DemoSynonyms,DemoControlledVocab">
+        Improve Query (AI)
+      </div>
 
       <?php $shards = $options->getShards(); ?>
       <?php if ($options->showShardCheckboxes() && !empty($shards)): ?>
