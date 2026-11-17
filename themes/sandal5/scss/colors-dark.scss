@@ -13,6 +13,14 @@
   }
 
   /* --- Header --- */
+  // The bootstrap5 theme restores Bootstrap's adaptive navbar colors in dark
+  // mode; keep the navbar text white on the colored header instead.
+  .navbar {
+    --bs-navbar-color: white;
+    --bs-navbar-active-color: white;
+    --bs-navbar-brand-color: white;
+    --bs-navbar-brand-hover-color: white;
+  }
   header {
     background-color: #263238; /* Material Blue Grey 900 */
 
@@ -71,7 +79,8 @@
     background-color: #37474f;
   }
   .breadcrumb {
-    color: $silver;
+    // $silver only has a contrast of 3.4:1 on the breadcrumb background.
+    color: $moon-gray;
   }
   .breadcrumb a {
     color: $light-blue;
@@ -91,6 +100,15 @@
   mark {
     background-color: #5c5c00;
     color: $white;
+  }
+
+  // Form controls: the theme's $input-color (#333) is unreadable on the dark
+  // background that $input-bg resolves to.
+  .form-control,
+  .form-select,
+  .form-control:focus,
+  .form-select:focus {
+    color: var(--bs-body-color);
   }
 
   .nav > li > a {
@@ -126,6 +144,12 @@
     color: $white;
     background-color: #5c1a1a;
     a { color: $light-red; }
+  }
+  .alert-warning,
+  .alert-warning:hover {
+    color: #ffd54f; /* Material Amber 300 */
+    background-color: #33270d;
+    a { color: $light-blue; }
   }
 
   .btn-link {
@@ -167,6 +191,10 @@
   }
 
   /* --- Search --- */
+  // $mid-gray only has a contrast of 2.1:1 on the dark background.
+  .bulkActionButtons label {
+    color: $silver;
+  }
   .result {
     border-bottom-color: #444;
 
@@ -246,6 +274,15 @@
   /* --- Pagination --- */
   .pagination > li > a {
     color: $light-blue;
+  }
+  // The light hover background of the theme ($pagination-hover-bg) hides the
+  // light text and icons of the pagination links.
+  .pagination {
+    --bs-pagination-hover-bg: #37474f; /* Material Blue Grey 800 */
+  }
+  .pager li > a:hover,
+  .pager li > a:focus {
+    background-color: #37474f;
   }
 
   /* --- Keyboard --- */

@@ -3,18 +3,42 @@
 a {
   text-decoration: underline;
 }
-@include color-mode(light, true) {
-  a:hover {
-    color: black;
+// Note: the dark mode link color is set with $link-color-dark (see
+// bootstrap-variable-overrides.scss) instead of a rule for the a element; such a
+// rule would also override the text color of buttons and navigation links.
+
+// The colored text utilities use the theme colors, which are chosen for a light
+// background and too dark for the dark one (e.g. 3.1:1 for .text-success and 2:1
+// for .text-danger); use Bootstrap's emphasis colors of the color mode instead.
+@include color-mode(dark, true) {
+  @each $color in (primary, secondary, success, info, warning, danger) {
+    .text-#{$color} {
+      color: var(--#{$prefix}#{$color}-text-emphasis);
+    }
   }
 }
+
+// Bootstrap replaces the focus outline of many controls with a translucent ring in
+// the primary color. On the dark background that ring is nearly invisible (about
+// 1.2:1 for form controls and navigation links, 1.7:1 for buttons), so use a
+// lighter one with a contrast of about 4:1 in dark mode.
+$focus-ring-color-dark: rgba($link-color-dark, .75) !default;
+$focus-ring-box-shadow-dark: 0 0 $focus-ring-blur $focus-ring-width $focus-ring-color-dark !default;
 @include color-mode(dark, true) {
-  a {
-    /* Light enough to be WCAG AA compliant */
-    color: #8CA2BA;
+  --#{$prefix}focus-ring-color: #{$focus-ring-color-dark};
+  .btn {
+    --#{$prefix}btn-focus-box-shadow: #{$focus-ring-box-shadow-dark};
   }
-  a:hover {
-    color: white;
+  .pagination {
+    --#{$prefix}pagination-focus-box-shadow: #{$focus-ring-box-shadow-dark};
+  }
+  .form-control:focus,
+  .form-select:focus,
+  .form-check-input:focus,
+  .nav-link:focus-visible,
+  .accordion-button:focus,
+  .navbar-toggler:focus {
+    box-shadow: $focus-ring-box-shadow-dark;
   }
 }
 

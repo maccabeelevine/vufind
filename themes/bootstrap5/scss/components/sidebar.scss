@@ -152,7 +152,7 @@
   display: flex;
   width: 100%;
   font-weight: bold;
-  color: $body-color;
+  color: var(--bs-body-color);
 }
 .facet-group > .checkbox,
 .sidebar .facet.checkbox {
@@ -191,6 +191,11 @@
     .fa.fa-check:before {
       content: "\f00d";
     }
+  }
+}
+@include color-mode(dark, true) {
+  .top-row .applied:hover {
+    color: var(--#{$prefix}danger-text-emphasis);
   }
 }
 
@@ -275,6 +280,16 @@ h3.facet-title {
 }
 .multi-facet-selection-active .apply-filters {
   display: block;
+}
+// In multi-facet selection mode, a selected facet only swaps its square for a
+// checked icon, which is easy to miss; give it a visible highlight.
+.multi-facet-selection-active .checkbox-filters .facet.active {
+  background-color: var(--bs-tertiary-bg);
+  a,
+  .icon-link__icon,
+  .icon-link__label {
+    color: var(--bs-emphasis-color);
+  }
 }
 .sidebar .multi-filters-selection {
   position: sticky;

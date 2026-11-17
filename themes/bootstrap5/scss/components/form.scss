@@ -178,6 +178,27 @@ form {
   color: $gray-dark;
   line-height: 1.5;
 }
+@include color-mode(dark, true) {
+  // The light hover background would hide the light text of dark mode.
+  .select-all-label {
+    &:hover,
+    &:focus {
+      background-color: var(--#{$prefix}tertiary-bg);
+    }
+  }
+  // $gray-dark and black are unreadable on the dark background.
+  .checkbox-select-number {
+    color: var(--#{$prefix}secondary-color);
+  }
+  .checkbox-select:has(.checkbox-select-item) {
+    &:hover,
+    &:focus {
+      .checkbox-select-number {
+        color: var(--#{$prefix}emphasis-color);
+      }
+    }
+  }
+}
 
 /* hide result/list checkboxes (but NOT cart checkboxes) on mobile search/favorites */
 
